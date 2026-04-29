@@ -1,11 +1,13 @@
 package mx.edu.cetys.software_quality_lab.users;
 
-import mx.edu.cetys.software_quality_lab.users.exceptions.DuplicateUsernameException;
-import mx.edu.cetys.software_quality_lab.users.exceptions.InvalidUserDataException;
-import mx.edu.cetys.software_quality_lab.validators.EmailValidatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import mx.edu.cetys.software_quality_lab.users.exceptions.DuplicateUsernameException;
+import mx.edu.cetys.software_quality_lab.users.exceptions.InvalidUserDataException;
+import mx.edu.cetys.software_quality_lab.users.exceptions.UserNotFoundException;
+import mx.edu.cetys.software_quality_lab.validators.EmailValidatorService;
 
 @Service
 public class UserService {
@@ -99,10 +101,28 @@ public class UserService {
      * Buscar un usuario por ID.
      * Lanzar UserNotFoundException (HTTP 404) si el usuario no existe.
      */
+
+    //ximena
     UserController.UserResponse getUserById(Long id) {
         log.info("Buscando usuario por ID, id={}", id);
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + id));
+            return mapToResponse(user);
+    }
+
+            UserController.UserResponse suspendedUser(Long id) {
+                log.info("Suspendiendo usuario, id={}", id);
+                User user = userRepository.findById(id)
+                        .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id=" + id));
+                if (user.getStatus() == UserStatus.SUSPENDED) {
+                    throw new InvalidUserDataException("El usuario con id=" + id + " ya está suspendido");
+                }
+                user.setStatus(UserStatus.SUSPENDED);
+                User saved = userRepository.save(user);
+                log.info("Usuario suspendido exitosamente, id={}", saved.getId());
+                return mapToResponse(saved);
+            }
         // TODO: buscar por id con findById, lanzar UserNotFoundException si está vacío, mapear y regresar
-        throw new UnsupportedOperationException("TODO: implementar getUserById");
     }
 
     /**

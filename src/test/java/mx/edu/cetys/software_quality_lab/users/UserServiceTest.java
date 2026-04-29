@@ -1,19 +1,26 @@
 package mx.edu.cetys.software_quality_lab.users;
 
-import mx.edu.cetys.software_quality_lab.users.exceptions.DuplicateUsernameException;
-import mx.edu.cetys.software_quality_lab.users.exceptions.InvalidUserDataException;
-import mx.edu.cetys.software_quality_lab.users.exceptions.UserNotFoundException;
-import mx.edu.cetys.software_quality_lab.validators.EmailValidatorService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import mx.edu.cetys.software_quality_lab.users.exceptions.DuplicateUsernameException;
+import mx.edu.cetys.software_quality_lab.users.exceptions.InvalidUserDataException;
+import mx.edu.cetys.software_quality_lab.users.exceptions.UserNotFoundException;
+import mx.edu.cetys.software_quality_lab.validators.EmailValidatorService;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -61,9 +68,22 @@ public class UserServiceTest {
         assertEquals("juan4_dev", response.username());
         assertEquals("ACTIVE", response.status());
     }
-
+//ximena 
     @Test
     void shouldGetUserByIdSuccessfully() {
+        var mockUser = buildMockSavedUser(1L, "juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", 25);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+
+        var response = userService.getUserById(1L);
+
+        assertEquals(1L, response.id());
+        assertEquals("juan4_dev", response.username());
+        assertEquals("Juan", response.firstName());
+        assertEquals("6641234567", response.phone());
+        assertEquals("j4n#gmil.com", response.email());
+        assertEquals(25, response.age());
+        assertEquals("ACTIVE", response.status());
+
         // TODO: arrange — mockear userRepository.findById para que regrese un Optional<User> con datos
         // TODO: act — llamar a userService.getUserById(1L)
         // TODO: assert — verificar que los campos del response coincidan con el mock
@@ -216,9 +236,12 @@ public class UserServiceTest {
     }
 
     // ─── Not found ───────────────────────────────────────────────────────────
-
+//ximena
     @Test
     void shouldThrowWhenUserNotFound() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById(99L));
+        
         // TODO: mockear userRepository.findById para que regrese Optional.empty()
         // TODO: assertThrows UserNotFoundException
     }

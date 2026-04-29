@@ -1,5 +1,10 @@
 package mx.edu.cetys.software_quality_lab.users;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -111,20 +113,33 @@ public class UserControllerIntegrationTest {
     }
 
     // ─── GET /users/{id} ─────────────────────────────────────────────────────
-
+//ximena
     @Test
     void shouldReturn200AndUserWhenFound() throws Exception {
+        User saved = userRepository.save(new User("juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", 25));
+
+        mockMvc.perform(get("/users/" + saved.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.response.user.id").value(saved.getId()))
+            .andExpect(jsonPath("$.response.user.username").value("juan4_dev"))
+            .andExpect(jsonPath("$.response.user.firstName").value("Juan"))
+            .andExpect(jsonPath("$.response.user.lastName").value("López"))
+            .andExpect(jsonPath("$.response.user.phone").value("6641234567"))
+            .andExpect(jsonPath("$.response.user.status").value("ACTIVE"))
+            .andExpect(jsonPath("$.error").isEmpty());
+
         // TODO: guardar un usuario via repository, obtener su id generado
         // TODO: realizar GET /users/{id}
         // TODO: andExpect status 200
         // TODO: andExpect jsonPath campos coincidan con el usuario guardado
     }
-
+//ximena
     @Test
     void shouldReturn404WhenUserNotFound() throws Exception {
-        // TODO: realizar GET /users/9999 (id inexistente)
-        // TODO: andExpect status 404
-    }
+    mockMvc.perform(get("/users/9999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").isNotEmpty());
+}
 
     // ─── PATCH /users/{id}/suspend ────────────────────────────────────────────
 
