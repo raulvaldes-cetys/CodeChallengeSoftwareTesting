@@ -17,7 +17,7 @@
 
 **Modalidad:** ZIP
 
-**Link del repositorio (si aplica):** <!-- https://github.com/... -->
+**Link del repositorio (si aplica):** [<!-- https://github.com/... -->](https://github.com/raulvaldes-cetys/CodeChallengeSoftwareTesting)
 
 ---
 
@@ -31,20 +31,11 @@
 
 | Métrica | Resultado |
 |---|---|
-| Line coverage | <!-- ej. 91% --> |
-| Branch coverage | <!-- ej. 87% --> |
+| UserServiceTest Line coverage | 82% |
+| UserServiceTest Branch coverage | 95% |
+| UserControllerIntegrationTest Line coverage | 93% |
+| UserControllerIntegrationTest Branch coverage | 86% |
+| Average Line coverage | 87.5% |
+| Average Branch coverage | 90.5% |
 
 ---
-
-## Challenge Extra — Módulo `petstore`
-
-### ¿Qué implementaron?
-
-<!-- Describan qué lograron del challenge, si lo completaron o hasta dónde llegaron -->
-
-### Cobertura obtenida
-
-| Métrica | Resultado |
-|---|---|
-| Line coverage | <!-- ej. 88% --> |
-| Branch coverage | <!-- ej. 85% --> |
