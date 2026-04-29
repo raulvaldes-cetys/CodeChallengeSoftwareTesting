@@ -91,9 +91,14 @@ public class UserServiceTest {
 
     @Test
     void shouldSuspendActiveUserSuccessfully() {
-        // TODO: arrange — mockear findById con un usuario ACTIVE
-        // TODO: act — llamar a userService.suspendUser(id)
-        // TODO: assert — verificar que el status regresado sea "SUSPENDED"; confirmar que save fue llamado
+        var mockUser = buildMockSavedUser(1L, "juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", 25);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(any())).thenReturn(mockUser);
+
+        var response = userService.suspendUser(1L);
+
+        verify(userRepository, times(1)).save(any());
+        assertEquals("SUSPENDED", response.status());
     }
 
     // ─── Validaciones de Username ─────────────────────────────────────────────
@@ -236,19 +241,26 @@ public class UserServiceTest {
     }
 
     // ─── Not found ───────────────────────────────────────────────────────────
-//ximena
     @Test
     void shouldThrowWhenUserNotFound() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
         assertThrows(UserNotFoundException.class, () -> userService.getUserById(99L));
-        
-        // TODO: mockear userRepository.findById para que regrese Optional.empty()
-        // TODO: assertThrows UserNotFoundException
+    }
+
+    @Test
+    void shouldThrowWhenSuspendingNonExistentUser() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.suspendUser(99L));
+        verify(userRepository, never()).save(any());
     }
 
     @Test
     void shouldThrowWhenSuspendingAlreadySuspendedUser() {
-        // TODO: mockear findById con un usuario SUSPENDED
-        // TODO: assertThrows InvalidUserDataException
+        var mockUser = buildMockSavedUser(1L, "juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", 25);
+        mockUser.setStatus(UserStatus.SUSPENDED);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+
+        assertThrows(InvalidUserDataException.class, () -> userService.suspendUser(1L));
+        verify(userRepository, never()).save(any());
     }
 }

@@ -110,21 +110,6 @@ public class UserService {
             return mapToResponse(user);
     }
 
-        UserController.UserResponse suspendedUser(Long id) {
-            log.info("Suspendiendo usuario, id={}", id);
-            User user = userRepository.findById(id)
-                    .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id=" + id));
-            if (user.getStatus() == UserStatus.SUSPENDED) {
-                throw new InvalidUserDataException("El usuario con id=" + id + " ya está suspendido");
-            }
-                user.setStatus(UserStatus.SUSPENDED);
-                User saved = userRepository.save(user);
-                log.info("Usuario suspendido exitosamente, id={}", saved.getId());
-                return mapToResponse(saved);
-            }
-        // TODO: buscar por id con findById, lanzar UserNotFoundException si está vacío, mapear y regresar
-    
-
     /**
      * Suspender un usuario ACTIVO.
      * Lanzar UserNotFoundException si el usuario no existe.
@@ -132,8 +117,15 @@ public class UserService {
      */
     UserController.UserResponse suspendUser(Long id) {
         log.info("Suspendiendo usuario, id={}", id);
-        // TODO: buscar usuario, validar status, cambiar a SUSPENDED, guardar, mapear y regresar
-        throw new UnsupportedOperationException("TODO: implementar suspendUser");
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id=" + id));
+        if (user.getStatus() == UserStatus.SUSPENDED) {
+            throw new InvalidUserDataException("El usuario con id=" + id + " ya está suspendido");
+        }
+        user.setStatus(UserStatus.SUSPENDED);
+        User saved = userRepository.save(user);
+        log.info("Usuario suspendido exitosamente, id={}", saved.getId());
+        return mapToResponse(saved);
     }
 
     private UserController.UserResponse mapToResponse(User user) {

@@ -1,6 +1,7 @@
 package mx.edu.cetys.software_quality_lab.users;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -128,33 +129,43 @@ public class UserControllerIntegrationTest {
             .andExpect(jsonPath("$.response.user.status").value("ACTIVE"))
             .andExpect(jsonPath("$.error").isEmpty());
 
-        // TODO: guardar un usuario via repository, obtener su id generado
-        // TODO: realizar GET /users/{id}
-        // TODO: andExpect status 200
-        // TODO: andExpect jsonPath campos coincidan con el usuario guardado
     }
-//ximena
+
     @Test
     void shouldReturn404WhenUserNotFound() throws Exception {
-    mockMvc.perform(get("/users/9999"))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.error").isNotEmpty());
-}
+        mockMvc.perform(get("/users/9999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").isNotEmpty());
+    }
 
     // ─── PATCH /users/{id}/suspend ────────────────────────────────────────────
 
     @Test
     void shouldSuspendUserAndReturn200() throws Exception {
-        // TODO: guardar un usuario ACTIVE via repository
-        // TODO: realizar PATCH /users/{id}/suspend
-        // TODO: andExpect status 200
-        // TODO: andExpect jsonPath("$.response.user.status") == "SUSPENDED"
+        User saved = userRepository.save(new User("juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", 25));
+
+        mockMvc.perform(patch("/users/" + saved.getId() + "/suspend"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.info").value("Usuario suspendido exitosamente"))
+                .andExpect(jsonPath("$.response.user.status").value("SUSPENDED"))
+                .andExpect(jsonPath("$.error").isEmpty());
+    }
+
+    @Test
+    void shouldReturn404WhenSuspendingNonExistentUser() throws Exception {
+        mockMvc.perform(patch("/users/9999/suspend"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").isNotEmpty());
     }
 
     @Test
     void shouldReturn400WhenSuspendingAlreadySuspendedUser() throws Exception {
-        // TODO: guardar un usuario con status SUSPENDED via repository
-        // TODO: realizar PATCH /users/{id}/suspend
-        // TODO: andExpect status 400
+        User user = new User("juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", 25);
+        user.setStatus(UserStatus.SUSPENDED);
+        User saved = userRepository.save(user);
+
+        mockMvc.perform(patch("/users/" + saved.getId() + "/suspend"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").isNotEmpty());
     }
 }
