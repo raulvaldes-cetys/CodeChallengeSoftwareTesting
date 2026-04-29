@@ -1,6 +1,7 @@
 package mx.edu.cetys.software_quality_lab.users;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -238,6 +239,76 @@ public class UserServiceTest {
         assertThrows(DuplicateUsernameException.class, () -> userService.registerUser(validRequest()));
 
         verify(userRepository, never()).save(any());
+    }
+
+    // ─── Validaciones de campo nulo ───────────────────────────────────────────
+    // Cubren el branch `campo == null → true` que los tests de valor inválido no alcanzan
+
+    @Test
+    void shouldThrowWhenUsernameIsNull() {
+        var request = new UserController.UserRequest(null, "Juan", "López", "6641234567", "j4n#gmil.com", 25);
+        assertThrows(InvalidUserDataException.class, () -> userService.registerUser(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowWhenFirstNameIsNull() {
+        var request = new UserController.UserRequest("juan4_dev", null, "López", "6641234567", "j4n#gmil.com", 25);
+        assertThrows(InvalidUserDataException.class, () -> userService.registerUser(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowWhenLastNameIsNull() {
+        var request = new UserController.UserRequest("juan4_dev", "Juan", null, "6641234567", "j4n#gmil.com", 25);
+        assertThrows(InvalidUserDataException.class, () -> userService.registerUser(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowWhenAgeIsNull() {
+        var request = new UserController.UserRequest("juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", null);
+        assertThrows(InvalidUserDataException.class, () -> userService.registerUser(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowWhenPhoneIsNull() {
+        var request = new UserController.UserRequest("juan4_dev", "Juan", "López", null, "j4n#gmil.com", 25);
+        assertThrows(InvalidUserDataException.class, () -> userService.registerUser(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    // ─── Cobertura de records de UserController ───────────────────────────────
+    // Los records generan equals/hashCode/toString automáticamente; IntelliJ los
+    // cuenta como líneas ejecutables que ningún test cubría hasta ahora.
+
+    @Test
+    void userRequestRecordMethods() {
+        var r1 = new UserController.UserRequest("user4", "Juan", "López", "6641234567", "j4n#gmil.com", 25);
+        var r2 = new UserController.UserRequest("user4", "Juan", "López", "6641234567", "j4n#gmil.com", 25);
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotNull(r1.toString());
+    }
+
+    @Test
+    void userResponseRecordMethods() {
+        var r1 = new UserController.UserResponse(1L, "user4", "Juan", "López", "6641234567", "j4n#gmil.com", 25, "ACTIVE");
+        var r2 = new UserController.UserResponse(1L, "user4", "Juan", "López", "6641234567", "j4n#gmil.com", 25, "ACTIVE");
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotNull(r1.toString());
+    }
+
+    @Test
+    void userWrapperRecordMethods() {
+        var user = new UserController.UserResponse(1L, "user4", "Juan", "López", "6641234567", "j4n#gmil.com", 25, "ACTIVE");
+        var w1 = new UserController.UserWrapper(user);
+        var w2 = new UserController.UserWrapper(user);
+        assertEquals(w1, w2);
+        assertEquals(w1.hashCode(), w2.hashCode());
+        assertNotNull(w1.toString());
     }
 
     // ─── Not found ───────────────────────────────────────────────────────────

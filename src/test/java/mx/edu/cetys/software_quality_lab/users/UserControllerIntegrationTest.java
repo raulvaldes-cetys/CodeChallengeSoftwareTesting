@@ -104,6 +104,97 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenUsernameTooLong() throws Exception {
+        String body = """
+                { "username": "aaaaabbbbbcccccddddde", "firstName": "Juan", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenUsernameHasInvalidChars() throws Exception {
+        String body = """
+                { "username": "User4Name", "firstName": "Juan", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenUsernameStartsWithUnderscore() throws Exception {
+        String body = """
+                { "username": "_juan4dev", "firstName": "Juan", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenUsernameEndsWithUnderscore() throws Exception {
+        String body = """
+                { "username": "juan4dev_", "firstName": "Juan", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenFirstNameTooShort() throws Exception {
+        String body = """
+                { "username": "juan4_dev", "firstName": "J", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenFirstNameHasNumbers() throws Exception {
+        String body = """
+                { "username": "juan4_dev", "firstName": "Juan5", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenLastNameTooShort() throws Exception {
+        String body = """
+                { "username": "juan4_dev", "firstName": "Juan", "lastName": "L",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenLastNameHasNumbers() throws Exception {
+        String body = """
+                { "username": "juan4_dev", "firstName": "Juan", "lastName": "Perez2",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 25 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenAgeExceedsMaximum() throws Exception {
+        String body = """
+                { "username": "juan4_dev", "firstName": "Juan", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com", "age": 121 }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenAgeIsNull() throws Exception {
+        // age omitido del JSON → null en el request → cubre el branch age == null
+        String body = """
+                { "username": "juan4_dev", "firstName": "Juan", "lastName": "López",
+                  "phone": "6641234567", "email": "j4n#gmil.com" }""";
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldReturn409WhenUsernameIsDuplicated() throws Exception {
         // Guardar un usuario con el mismo username directo en BD
         userRepository.save(new User("juan4_dev", "Juan", "López", "6641234567", "j4n#gmil.com", 25));

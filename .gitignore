@@ -1,0 +1,15 @@
+# Gradle
+.gradle/
+build/
+
+# Base de datos H2 en archivo (runtime local)
+data/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# macOS
+.DS_Store
